@@ -74,17 +74,24 @@ public class Planon {
     public Response getAssetDetail(@PathParam("id") Integer id) 
              throws PnESBusinessException, PnESActionNotFoundException, PnESFieldNotFoundException{
         LOG.info("getting asset detail");
-      
-        IPnESBusinessObject asset = getAsset(id);
-        LOG.info("Found asset!");
 
-        return Response.status(200).entity(asset.toString()).build();
+        IPnESBusinessObject asset = getAsset(id);
+        LOG.info("Asset PK: " + asset.getPrimaryKey() + ", someday converting to JSON");
+        
+
+        Asset testAsset = new Asset();
+        testAsset.setPrimaryKey(1234);
+
+        JsonObject jsonObject = (JsonObject) JsonParser.parseString(new Gson().toJson(testAsset));
+        jsonObject.addProperty("hello", "world!");
+
+        return Response.status(200).entity(jsonObject.toString()).build();
     }
 
     @POST
     @Path("/UsrAsset")
     @Consumes({MediaType.APPLICATION_JSON})
-    @Produces({MediaType.TEXT_PLAIN})
+    @Produces({MediaType.APPLICATION_JSON})
     public Response createOrUpdateAssetDetail(Asset asset) 
              throws PnESBusinessException, PnESActionNotFoundException, PnESFieldNotFoundException{
         LOG.info("creating or updating asset detail");
@@ -109,7 +116,7 @@ public class Planon {
     @POST
     @Path("/InventoryLocationAssignment")
     @Consumes({MediaType.APPLICATION_JSON})
-    @Produces({MediaType.TEXT_PLAIN})
+    @Produces({MediaType.APPLICATION_JSON})
     public Response createOrUpdateLocationAssignment(Location location) {
         LOG.info("creating or updating location assignment detail");
         String message = "";
