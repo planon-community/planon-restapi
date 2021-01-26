@@ -57,7 +57,7 @@ jar {
             'Bundle-ManifestVersion': '2',
             'Bundle-Name': 'Planon-REST-API',
             'Bundle-SymbolicName': 'Planon-REST-API',
-            'Bundle-Version': '1.0.0.0',
+            'Bundle-Version': '1.0.0',
             'Embedded-Artifacts': 'lib/client.api.utils-1.0.4.jar;g="com.planonsoftware.tms.lib.client";a="client.api.utils";v="1.0.4",lib/gson-2.8.6.jar;g="com.google.code.gson";a="gson";v="2.8.6"',
             'Import-Package': 'nl.planon.enterprise.service.api,nl.planon.enterprise.service.api.factory,javax.ws.rs,javax.ws.rs.core,javax.security.auth.login,nl.planon.hades.dto,nl.planon.hades.osgi.integration,nl.planon.json.server.container.services.common;version="[7.0,8)",nl.planon.util.pnlogging;version="[1.25,2)",org.osgi.framework;version="[1.5,2)",sun.misc',
             'Require-Capability': 'osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.8))"'
