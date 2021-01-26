@@ -1,4 +1,4 @@
-package com.planonsoftware.tms.presales.services;
+package edu.planon.tms.rest.services;
 
 import java.util.Random;
 
@@ -14,8 +14,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.planonsoftware.tms.lib.client.BusinessObject;
-import com.planonsoftware.tms.presales.dto.Asset;
-import com.planonsoftware.tms.presales.dto.Location;
+import edu.planon.tms.rest.dto.Asset;
+import edu.planon.tms.rest.dto.Location;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -55,8 +55,8 @@ import nl.planon.util.pnlogging.PnLogger;
  *
  */
 @Path("/")
-public class Dartmouth {
-    private static final PnLogger LOG = PnLogger.getLogger(Dartmouth.class);
+public class Planon {
+    private static final PnLogger LOG = PnLogger.getLogger(Planon.class);
     private static final String WELCOME_QUOTE = "Welcome to Planon Rest Services!!";
 
     @GET

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>rest-api-sample2</name>
-	<comment>Project rest-api-sample2 created by Buildship.</comment>
+	<name>restapi</name>
+	<comment>Project restapi created by Buildship.</comment>
 	<projects>
 	</projects>
 	<buildSpec>

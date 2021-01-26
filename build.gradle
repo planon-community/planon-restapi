@@ -51,7 +51,7 @@ jar {
     manifest {
         attributes (
             'Manifest-Version': '1.0',
-            'Bundle-Activator': 'com.planonsoftware.tms.presales.osgi.Activator',
+            'Bundle-Activator': 'edu.planon.tms.rest.osgi.Activator',
             'Bundle-ClassPath': '.,lib/client.api.utils-1.0.4.jar,lib/gson-2.8.6.jar',
             'Bundle-Description': 'Planon-REST-API',
             'Bundle-ManifestVersion': '2',

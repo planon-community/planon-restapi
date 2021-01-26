@@ -1,4 +1,4 @@
-package com.planonsoftware.tms.presales.dto;
+package edu.planon.tms.rest.dto;
 
 public class Location {
 
