@@ -6,6 +6,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -67,22 +68,35 @@ public class Planon {
         return Response.status(200).entity(jsonObject.toString()).build();
     }
 
+    @GET
+    @Path("/UsrAsset/{id}")
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response getAssetDetail(@PathParam("id") Integer id) 
+             throws PnESBusinessException, PnESActionNotFoundException, PnESFieldNotFoundException{
+        LOG.info("getting asset detail");
+      
+        IPnESBusinessObject asset = getAsset(id);
+        LOG.info("Found asset!");
+
+        return Response.status(200).entity(asset.toString()).build();
+    }
+
     @POST
     @Path("/UsrAsset")
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.TEXT_PLAIN})
     public Response createOrUpdateAssetDetail(Asset asset) 
-    		 throws PnESBusinessException, PnESActionNotFoundException, PnESFieldNotFoundException{
+             throws PnESBusinessException, PnESActionNotFoundException, PnESFieldNotFoundException{
         LOG.info("creating or updating asset detail");
         String message = "";
         JsonObject jsonObject = (JsonObject) JsonParser.parseString(new Gson().toJson(asset));
       
         if (asset != null && asset.getPrimaryKey() == 0) {
-        	Integer primaryKey = createAsset(asset.getProperytyRef(), asset.getItemGroupRef(), asset.getIsSimple(), asset.getIsArchived() );
+            Integer primaryKey = createAsset(asset.getProperytyRef(), asset.getItemGroupRef(), asset.getIsSimple(), asset.getIsArchived() );
             message = "Created the asset successfully with code: " + primaryKey;
           
         } else {
-        	updateAsset(asset.getPrimaryKey(), asset.getProperytyRef(), asset.getItemGroupRef(), asset.getIsSimple(), asset.getIsArchived() );
+            updateAsset(asset.getPrimaryKey(), asset.getProperytyRef(), asset.getItemGroupRef(), asset.getIsSimple(), asset.getIsArchived() );
             message = "Updated the asset successfully";
         }
         jsonObject.addProperty("message", message);
@@ -115,37 +129,44 @@ public class Planon {
                        .build();
     }
     
-    private Integer createAsset(Integer propertyValue, Integer groupValue, Boolean isSimple, Boolean isArchive )
-			            throws PnESBusinessException, PnESActionNotFoundException, PnESFieldNotFoundException {
-			IPnESBusinessObject assetBO = BusinessObject.create("UsrAsset");
-			assetBO.getStringReferenceField("PropertyRef")
-			                 .setValue(propertyValue);
-			assetBO.getStringReferenceField("ItemGroupRef")
-			                 .setValue(groupValue);
-			assetBO.getBooleanField("IsSimple")
-			                 .setValue(isSimple);
-			assetBO.getBooleanField("IsArchived")
-			                 .setValue(isArchive);
-			assetBO = assetBO.executeSave();
-			
-			LOG.info("Asset created");
-			
-			return assetBO.getPrimaryKey();
+    private Integer createAsset(Integer propertyValue, Integer groupValue, Boolean isSimple, Boolean isArchive)
+                        throws PnESBusinessException, PnESActionNotFoundException, PnESFieldNotFoundException {
+            IPnESBusinessObject assetBO = BusinessObject.create("UsrAsset");
+            assetBO.getStringReferenceField("PropertyRef")
+                             .setValue(propertyValue);
+            assetBO.getStringReferenceField("ItemGroupRef")
+                             .setValue(groupValue);
+            assetBO.getBooleanField("IsSimple")
+                             .setValue(isSimple);
+            assetBO.getBooleanField("IsArchived")
+                             .setValue(isArchive);
+            assetBO = assetBO.executeSave();
+            
+            LOG.info("Asset created");
+            
+            return assetBO.getPrimaryKey();
 }
     
-    private void updateAsset(Integer primaryKeyValue, Integer propertyValue, Integer groupValue, Boolean isSimple, Boolean isArchive )
+    private void updateAsset(Integer primaryKeyValue, Integer propertyValue, Integer groupValue, Boolean isSimple, Boolean isArchive)
             throws PnESBusinessException, PnESActionNotFoundException, PnESFieldNotFoundException {
-			IPnESBusinessObject assetBO = BusinessObject.read("UsrAsset", primaryKeyValue);
-			assetBO.getStringReferenceField("PropertyRef")
-			                 .setValue(propertyValue);
-			assetBO.getStringReferenceField("ItemGroupRef")
-			                 .setValue(groupValue);
-			assetBO.getBooleanField("IsSimple")
-			                 .setValue(isSimple);
-			assetBO.getBooleanField("IsArchived")
-			                 .setValue(isArchive);
-			assetBO = assetBO.executeSave();
-			
-			LOG.info("Asset Updated");			
-}
+            IPnESBusinessObject assetBO = BusinessObject.read("UsrAsset", primaryKeyValue);
+            assetBO.getStringReferenceField("PropertyRef")
+                             .setValue(propertyValue);
+            assetBO.getStringReferenceField("ItemGroupRef")
+                             .setValue(groupValue);
+            assetBO.getBooleanField("IsSimple")
+                             .setValue(isSimple);
+            assetBO.getBooleanField("IsArchived")
+                             .setValue(isArchive);
+            assetBO = assetBO.executeSave();
+            
+            LOG.info("Asset Updated");
+    }
+
+    private IPnESBusinessObject getAsset(Integer primaryKeyValue) throws PnESBusinessException, PnESActionNotFoundException, PnESFieldNotFoundException {
+        IPnESBusinessObject assetBO = BusinessObject.read("UsrAsset", primaryKeyValue);
+
+        LOG.info("Getting asset");
+        return assetBO;
+    }
 }
