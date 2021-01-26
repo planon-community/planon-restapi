@@ -3,14 +3,12 @@ package edu.planon.tms.rest.dto;
 @SuppressWarnings("PMD")
 public class Asset {
 
-	private int primaryKey;
+    private int primaryKey;
     private Integer itemGroupRef;
     private Integer properytyRef;
     private boolean isSimple;
     private boolean isArchived;
 
-
-   
     public Integer getItemGroupRef() {
         return itemGroupRef;
     }
@@ -26,7 +24,6 @@ public class Asset {
     public void setProperytyRef(Integer properytyRef) {
         this.properytyRef = properytyRef;
     }
-
 
     public boolean getIsArchived() {
         return isArchived;
@@ -51,5 +48,4 @@ public class Asset {
     public void setPrimaryKey(int primaryKey) {
         this.primaryKey = primaryKey;
     }
-
 }
