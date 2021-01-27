@@ -16,7 +16,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.planonsoftware.tms.lib.client.BusinessObject;
 import edu.planon.tms.rest.dto.Asset;
-import edu.planon.tms.rest.dto.Location;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -47,7 +46,6 @@ import nl.planon.enterprise.service.api.PnESActionNotFoundException;
 import nl.planon.enterprise.service.api.PnESBusinessException;
 import nl.planon.enterprise.service.api.PnESFieldNotFoundException;
 import nl.planon.enterprise.service.api.PnESOperator;
-import nl.planon.util.pnlogging.PnLogger;
 
 
 /**
@@ -78,6 +76,7 @@ public class Planon {
         IPnESBusinessObject asset = getAsset(id);
         LOG.info("Asset PK: " + asset.getPrimaryKey() + ", someday converting to JSON");
         
+        LOG.info("ASSET DEBUG: " + asset.getAttributesField(1));
 
         Asset testAsset = new Asset();
         testAsset.setPrimaryKey(1234);
@@ -105,29 +104,6 @@ public class Planon {
         } else {
             updateAsset(asset.getPrimaryKey(), asset.getProperytyRef(), asset.getItemGroupRef(), asset.getIsSimple(), asset.getIsArchived() );
             message = "Updated the asset successfully";
-        }
-        jsonObject.addProperty("message", message);
-
-        return Response.status(200)
-                       .entity(jsonObject.toString())
-                       .build();
-    }
-
-    @POST
-    @Path("/InventoryLocationAssignment")
-    @Consumes({MediaType.APPLICATION_JSON})
-    @Produces({MediaType.APPLICATION_JSON})
-    public Response createOrUpdateLocationAssignment(Location location) {
-        LOG.info("creating or updating location assignment detail");
-        String message = "";
-        JsonObject jsonObject = (JsonObject) JsonParser.parseString(new Gson().toJson(location));
-        if (location != null && location.getPrimaryKey() == 0) {
-            Random random = new Random();
-            message = "Created the location successfully with key: " + random.ints(1, 100)
-                                                                             .findFirst()
-                                                                             .getAsInt();
-        } else {
-            message = "Updated the location successfully";
         }
         jsonObject.addProperty("message", message);
 
