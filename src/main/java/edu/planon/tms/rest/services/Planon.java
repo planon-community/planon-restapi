@@ -45,7 +45,10 @@ public class Planon {
         IPnESBusinessObject asset = getAsset(id);
         LOG.info("Asset PK: " + asset.getPrimaryKey() + ", someday converting to JSON");
         
-        LOG.info("ASSET DEBUG: " + asset.getAttributesField(1));
+        LOG.info("ASSET DEBUG: " + asset.getNumberOfFields());
+        for (Integer i = 0; i < asset.getNumberOfFields(); i++) {
+            LOG.info("ASSET DEBUG: " + asset.getFieldPnName(i));
+        }
 
         // TODO: Figure out how to map the IPnESBusinessObject fields to the target Object
         Asset testAsset = new Asset();
