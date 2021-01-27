@@ -11,11 +11,6 @@ import nl.planon.hades.osgi.integration.ServerBundleActivator;
 import nl.planon.json.server.container.services.common.AbstractJaxRsRegistry;
 import nl.planon.json.server.container.services.common.IJsonJaxRsRegistry;
 
-
-/**
- * @author
- *
- */
 public class Activator extends ServerBundleActivator {
     private final List<ServiceRegistration> mRegistrations = new ArrayList<>();
 
