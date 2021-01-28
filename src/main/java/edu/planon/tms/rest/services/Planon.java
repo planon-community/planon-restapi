@@ -62,10 +62,13 @@ public class Planon {
             if (fieldType != null) {
                 switch (fieldType) {
                     case STRING:
-                        jsonObject.addProperty(fieldName, "");
+                        jsonObject.addProperty(fieldName, asset.getStringField(fieldName).getValue());
                     default:
                         break;
                 }
+            }
+            else {
+                jsonObject.add(fieldName, null);
             }
         }
 
