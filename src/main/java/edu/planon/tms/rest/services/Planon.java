@@ -16,10 +16,13 @@ import com.planonsoftware.tms.lib.client.BusinessObject;
 import edu.planon.tms.rest.dto.Asset;
 
 import nl.planon.enterprise.service.api.IPnESBusinessObject;
-import nl.planon.util.pnlogging.PnLogger;
 import nl.planon.enterprise.service.api.PnESActionNotFoundException;
 import nl.planon.enterprise.service.api.PnESBusinessException;
 import nl.planon.enterprise.service.api.PnESFieldNotFoundException;
+import nl.planon.enterprise.service.api.IPnESContext;
+import nl.planon.enterprise.service.api.IPnESField;
+import nl.planon.enterprise.service.api.PnESValueType;
+import nl.planon.util.pnlogging.PnLogger;
 
 // This sets the root path of the service
 @Path("/")
@@ -41,22 +44,30 @@ public class Planon {
     public Response getAssetDetail(@PathParam("id") Integer id) 
              throws PnESBusinessException, PnESActionNotFoundException, PnESFieldNotFoundException{
         LOG.info("getting asset detail");
+        JsonObject jsonObject = new JsonObject();
 
         IPnESBusinessObject asset = getAsset(id);
         LOG.info("Asset PK: " + asset.getPrimaryKey() + ", someday converting to JSON");
         
         LOG.info("ASSET DEBUG: " + asset.getNumberOfFields());
         for (Integer i = 0; i < asset.getNumberOfFields(); i++) {
-            LOG.info("ASSET DEBUG: " + asset.getFieldPnName(i));
+            String fieldName = asset.getFieldPnName(i);
+            LOG.info("ASSET DEBUG: FIELDNAME: " + fieldName);
+            IPnESField field = asset.getField(fieldName);
+            LOG.info("ASSET DEBUG: FIELD: " + field);
+            PnESValueType fieldType = field.getValueType();
+            LOG.info("ASSET DEBUG: VALUETYPE: " + fieldType);
+            LOG.info("ASSET DEBUG: FIELDCLASS: " + field.getClass());
+
+            if (fieldType != null) {
+                switch (fieldType) {
+                    case STRING:
+                        jsonObject.addProperty(fieldName, "");
+                    default:
+                        break;
+                }
+            }
         }
-
-        // TODO: Figure out how to map the IPnESBusinessObject fields to the target Object
-        Asset testAsset = new Asset();
-        testAsset.setPrimaryKey(asset.getPrimaryKey());
-        testAsset.setProperytyRef(asset.getReferenceField("PropertyRef").getValue());
-
-        JsonObject jsonObject = (JsonObject) JsonParser.parseString(new Gson().toJson(testAsset));
-        jsonObject.addProperty("hello", "world!");
 
         return Response.status(200).entity(jsonObject.toString()).build();
     }
