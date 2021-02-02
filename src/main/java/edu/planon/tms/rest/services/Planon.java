@@ -3,7 +3,6 @@ package edu.planon.tms.rest.services;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -12,9 +11,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.planonsoftware.tms.lib.client.BusinessObject;
 import edu.planon.tms.rest.dto.Asset;
 
@@ -22,8 +19,6 @@ import nl.planon.enterprise.service.api.IPnESBusinessObject;
 import nl.planon.enterprise.service.api.PnESActionNotFoundException;
 import nl.planon.enterprise.service.api.PnESBusinessException;
 import nl.planon.enterprise.service.api.PnESFieldNotFoundException;
-import nl.planon.enterprise.service.api.IPnESField;
-import nl.planon.enterprise.service.api.PnESValueType;
 import nl.planon.util.pnlogging.PnLogger;
 
 // This sets the root path of the service
@@ -45,9 +40,14 @@ public class Planon {
     @Produces({MediaType.APPLICATION_JSON})
     public Response getAssetResponse(@PathParam("id") Integer id) throws PnESBusinessException, PnESActionNotFoundException, PnESFieldNotFoundException{
         LOG.info("getting asset detail");
-        JsonObject jsonObject = getBO("BaseAsset", id);
 
-        return Response.status(200).entity(jsonObject.toString()).build();
+        try {
+            JsonObject jsonObject = getBO("BaseAsset", id);
+            return Response.status(200).entity(jsonObject.toString()).build();
+        } catch (PnESBusinessException e) {
+            return Response.status(404).build();
+        }
+
     }
 
     @POST
@@ -82,17 +82,16 @@ public class Planon {
         return Response.status(200).build();
     }
     
-    // TODO: Create a generic method to retrieve a BO that can be JSON serialized
-    private JsonObject getBO(String type, Integer primaryKeyValue) throws PnESBusinessException, PnESActionNotFoundException, PnESFieldNotFoundException {
-        IPnESBusinessObject genericBO = BusinessObject.read(type, primaryKeyValue);
+    private JsonObject getBO(String type, Integer id) throws PnESBusinessException, PnESActionNotFoundException, PnESFieldNotFoundException {
+        IPnESBusinessObject genericBO = BusinessObject.read(type, id);
+        LOG.info("Getting asset by id " + id);
 
         JsonObject response = new JsonObject();
-        response.addProperty("id", genericBO.getPrimaryKey());
-        response.addProperty("code", genericBO.getStringField("Code").getValue());
-        response.addProperty("type", genericBO.getBOType().getPnName());
-        response.addProperty("description", genericBO.getStringField("Name").getValue());
+        response.addProperty("Syscode", genericBO.getPrimaryKey());
+        response.addProperty("Code", genericBO.getStringField("Code").getValue());
+        response.addProperty("RefBODefinitionUserDefined", genericBO.getBOType().getPnName());
+        response.addProperty("Name", genericBO.getStringField("Name").getValue());
 
-        LOG.info("Getting asset");
         return response;
     }
 
