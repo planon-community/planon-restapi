@@ -19,7 +19,6 @@ import nl.planon.enterprise.service.api.IPnESBusinessObject;
 import nl.planon.enterprise.service.api.PnESActionNotFoundException;
 import nl.planon.enterprise.service.api.PnESBusinessException;
 import nl.planon.enterprise.service.api.PnESFieldNotFoundException;
-import nl.planon.enterprise.service.api.IPnESContext;
 import nl.planon.enterprise.service.api.IPnESField;
 import nl.planon.enterprise.service.api.PnESValueType;
 import nl.planon.util.pnlogging.PnLogger;
@@ -39,80 +38,42 @@ public class Planon {
     }
 
     @GET
-    @Path("/UsrAsset/{id}")
+    @Path("/asset/{id}")
     @Produces({MediaType.APPLICATION_JSON})
-    public Response getAssetDetail(@PathParam("id") Integer id) 
-             throws PnESBusinessException, PnESActionNotFoundException, PnESFieldNotFoundException{
+    public Response getAssetDetail(@PathParam("id") Integer id) throws PnESBusinessException, PnESActionNotFoundException, PnESFieldNotFoundException{
         LOG.info("getting asset detail");
-        JsonObject jsonObject = new JsonObject();
-
-        IPnESBusinessObject asset = getAsset(id);
-        LOG.info("Asset PK: " + asset.getPrimaryKey() + ", someday converting to JSON");
-        
-        LOG.info("ASSET DEBUG: " + asset.getNumberOfFields());
-        for (Integer i = 0; i < asset.getNumberOfFields(); i++) {
-            String fieldName = asset.getFieldPnName(i);
-            LOG.info("ASSET DEBUG: FIELDNAME: " + fieldName);
-            IPnESField field = asset.getField(fieldName);
-            LOG.info("ASSET DEBUG: FIELD: " + field);
-            PnESValueType fieldType = field.getValueType();
-            LOG.info("ASSET DEBUG: VALUETYPE: " + fieldType);
-            LOG.info("ASSET DEBUG: FIELDCLASS: " + field.getClass());
-
-            if (fieldType != null) {
-                switch (fieldType) {
-                    case STRING:
-                        jsonObject.addProperty(fieldName, asset.getStringField(fieldName).getValue());
-                    default:
-                        break;
-                }
-            }
-            else {
-                jsonObject.add(fieldName, null);
-            }
-        }
+        JsonObject jsonObject = getBO("BaseAsset", id);
 
         return Response.status(200).entity(jsonObject.toString()).build();
     }
 
     @POST
-    @Path("/UsrAsset")
+    @Path("/asset")
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
-    public Response createOrUpdateAssetDetail(Asset asset) 
-             throws PnESBusinessException, PnESActionNotFoundException, PnESFieldNotFoundException{
+    public Response createOrUpdateAssetDetail(JsonObject request) throws PnESBusinessException, PnESActionNotFoundException, PnESFieldNotFoundException{
         LOG.info("creating or updating asset detail");
-        String message = "";
-        JsonObject jsonObject = (JsonObject) JsonParser.parseString(new Gson().toJson(asset));
-      
-        if (asset != null && asset.getPrimaryKey() == 0) {
-            Integer primaryKey = createAsset(asset.getProperytyRef(), asset.getItemGroupRef(), asset.getIsSimple(), asset.getIsArchived() );
-            message = "Created the asset successfully with code: " + primaryKey;
-          
-        } else {
-            updateAsset(asset.getPrimaryKey(), asset.getProperytyRef(), asset.getItemGroupRef(), asset.getIsSimple(), asset.getIsArchived() );
-            message = "Updated the asset successfully";
-        }
-        jsonObject.addProperty("message", message);
+        JsonObject response = new JsonObject();
+        Integer id = createBO("UsrAsset", request);
+        response.addProperty("id", id);
 
-        return Response.status(200).entity(jsonObject.toString()).build();
+        return Response.status(200).entity(response.toString()).build();
     }
 
-    private Integer createAsset(Integer propertyValue, Integer groupValue, Boolean isSimple, Boolean isArchive) throws PnESBusinessException, PnESActionNotFoundException, PnESFieldNotFoundException {
-            IPnESBusinessObject assetBO = BusinessObject.create("UsrAsset");
-            assetBO.getStringReferenceField("PropertyRef").setValue(propertyValue);
-            assetBO.getStringReferenceField("ItemGroupRef").setValue(groupValue);
-            assetBO.getBooleanField("IsSimple").setValue(isSimple);
-            assetBO.getBooleanField("IsArchived").setValue(isArchive);
-            assetBO = assetBO.executeSave();
+    private Integer createBO(String type, JsonObject request) throws PnESBusinessException, PnESActionNotFoundException, PnESFieldNotFoundException {
+            IPnESBusinessObject genericBO = BusinessObject.create(type);
+            genericBO.getStringReferenceField("PropertyRef").setValue(request.get("property_ref"));
+            genericBO.getStringReferenceField("ItemGroupRef").setValue(request.get("item_group_ref"));
+            genericBO.getBooleanField("IsSimple").setValue(request.get("is_simple"));
+            genericBO.getBooleanField("IsArchived").setValue(request.get("is_archived"));
+            genericBO = genericBO.executeSave();
             
             LOG.info("Asset created");
             
-            return assetBO.getPrimaryKey();
+            return genericBO.getPrimaryKey();
     }
 
-    private void updateAsset(Integer primaryKeyValue, Integer propertyValue, Integer groupValue, Boolean isSimple, Boolean isArchive)
-            throws PnESBusinessException, PnESActionNotFoundException, PnESFieldNotFoundException {
+    private void updateAsset(Integer primaryKeyValue, Integer propertyValue, Integer groupValue, Boolean isSimple, Boolean isArchive) throws PnESBusinessException, PnESActionNotFoundException, PnESFieldNotFoundException {
             IPnESBusinessObject assetBO = BusinessObject.read("UsrAsset", primaryKeyValue);
             assetBO.getStringReferenceField("PropertyRef").setValue(propertyValue);
             assetBO.getStringReferenceField("ItemGroupRef").setValue(groupValue);
@@ -124,10 +85,16 @@ public class Planon {
     }
 
     // TODO: Create a generic method to retrieve a BO that can be JSON serialized
-    private IPnESBusinessObject getAsset(Integer primaryKeyValue) throws PnESBusinessException, PnESActionNotFoundException, PnESFieldNotFoundException {
-        IPnESBusinessObject assetBO = BusinessObject.read("UsrAsset", primaryKeyValue);
+    private JsonObject getBO(String type, Integer primaryKeyValue) throws PnESBusinessException, PnESActionNotFoundException, PnESFieldNotFoundException {
+        IPnESBusinessObject genericBO = BusinessObject.read(type, primaryKeyValue);
+
+        JsonObject response = new JsonObject();
+        response.addProperty("id", genericBO.getPrimaryKey());
+        response.addProperty("code", genericBO.getStringField("Code").getValue());
+        response.addProperty("type", genericBO.getBOType().getPnName());
+        response.addProperty("description", genericBO.getStringField("Name").getValue());
 
         LOG.info("Getting asset");
-        return assetBO;
+        return response;
     }
 }
